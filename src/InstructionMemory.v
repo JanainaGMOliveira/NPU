@@ -1,4 +1,4 @@
-// vou iniciarsó com um arquivo pré determinado. Depois faço o bootloader.
+// vou iniciar só com um arquivo pré determinado. Depois faço o bootloader.
 module InstructionMemory #(parameter SIZE = 64)(
     output [31:0] oReadData,
     input  [31:0] iAddress

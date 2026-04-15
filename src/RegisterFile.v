@@ -6,14 +6,14 @@ module RegisterFile(
     input  [4:0]  iAddr3,
     input  [31:0] iWriteData3,
     input         iWriteEnable3,
-    input         iClk
+    input         clk
 );
     reg [31:0] regFile [31:0];
 
     assign oReadData1 = iAddr1 != 32'd0 ? regFile[iAddr1] : 32'd0;
     assign oReadData2 = iAddr2 != 32'd0 ? regFile[iAddr2] : 32'd0;
 
-    always @ (posedge iClk)
+    always @(posedge clk)
     begin
         if (iWriteEnable3)
         begin 

@@ -1,0 +1,3 @@
+module NPUCore();
+
+endmodule
