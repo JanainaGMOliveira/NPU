@@ -1,11 +1,23 @@
 module Top(
     input  clk,
-    input  reset
+    input  rst
 );
-    wire [31:0] pc, instr, readData, dataAddr, writeData, memWriteEnable;
+    wire [31:0] pc;
+    wire [31:0] instruction;
+
+    wire        immSrcD;
+    wire        regWriteD;
+    wire        memWriteD;
+    wire        useMacD;
+    wire [1:0]  resultSrcD;
+    wire [1:0]  actFunctD;
+
+    InstructionMemory imem(instruction, pc);
+
+    MainDecoder       control(immSrcD, regWriteD, memWriteD, useMacD, resultSrcD, actFunctD, instruction);
+
+    NPUCore           datapath(pc, immSrcD, regWriteD, memWriteD, useMacD, resultSrcD, actFunctD, clk, rst);
     
-    NPUCore           core(clk, reset, pc, instr, memwrite, dataadr, writedata, readdata);
-    InstructionMemory imem(instr, pc);
     DataMemory        dmem(readData, dataAddr, writeData, memWriteEnable, clk);
 
 endmodule
