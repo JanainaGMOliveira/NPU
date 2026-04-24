@@ -23,7 +23,7 @@ module NPUCore(
                                {iImmSrcD, iRegWriteD, iMemWriteD, iUseMacD, iResultSrcD, iActFunctD}, 
                                rst, clk);
 
-    //MacUnit macUnit();
+    MAC #(8) macUnit();
     //ActivationFunctUnit activationFunctUnit();
 
     PipelineRegister #(8) regM({immSrcM, regWriteM, memWriteM, useMacM, resultSrcM, actFunctM}, 
