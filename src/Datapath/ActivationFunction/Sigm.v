@@ -5,7 +5,7 @@ module Sigm(
 	wire [31:0] cMacResult;
 	reg [7:0]   auxAF;
 	
-	TwosComplement #(32) c1(cMacResult, iMacResult, iMacResult[31]); 
+	TwosComplement #(32) c1(cMacResult, iMacResult, iMacResult[31]);
 	
 	always @(*)
 	begin

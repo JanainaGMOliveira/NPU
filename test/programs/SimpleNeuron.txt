@@ -1,0 +1,5 @@
+NPU_LOAD R1, 0(R0)     ; input: de R0 para R1
+NPU_LOAD R2, 4(R0)     ; weight: de R0 para R2
+NPU_MAC  R3, R1, R2    ; R3 = R3 + R1*R2
+NPU_RELU R3, R3          ; R3 = max(0,R3)
+NPU_STORE R3, 8(R0)   ; output: mem[8+R0] = R3

@@ -1,0 +1,16 @@
+NPU_LOAD    R1, 0(R0)   ; input x1: de R0 para R1
+NPU_LOAD    R2, 4(R0)   ; input x2: de R0 para R2
+NPU_LOAD    R3, 8(R0)   ; weight w11: de R0 para R3
+NPU_LOAD    R4, 12(R0) ; weight w21: de R0 para R4
+NPU_LOAD    R5, 16(R0) ; weight w12: de R0 para R5
+NPU_LOAD    R6, 20(R0) ; weight w22: de R0 para R6
+NPU_LOAD    R7, 24(R0) ; bias: de R0 para R7
+NPU_MAC      R7, R1, R3 ; R7 = R7 + R1*R3
+NPU_MAC      R7, R2, R4 ; R7 = R7 + R2*R4
+NPU_RAMPA  R7, R7       ; R7 = RAMPA(R7)
+NPU_STORE  R7, 40(R0) ; output1: mem[40+R0] = R7
+NPU_LOAD    R7, 28(R0)  ; bias: de R0 para R7
+NPU_MAC      R7, R1, R5  ; R7 = R7 + R1*R5
+NPU_MAC      R7, R2, R6  ; R7 = R7 + R2*R6
+NPU_TANH     R7, R7        ; R7 = TANH(R7)
+NPU_STORE  R7, 44(R0)  ; output2: mem[44+R0] = R7

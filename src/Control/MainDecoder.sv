@@ -49,7 +49,7 @@ module MainDecoder(
                 oMemWrite   = 1'b0;
                 oUseMac     = 1'b0;
                 oResultSrc  = 2'b10;
-                oActFunct = 2'bxx;
+                oActFunct   = 2'bxx;
             end
 
             NPU_SW:
@@ -59,7 +59,7 @@ module MainDecoder(
                 oMemWrite   = 1'b1;
                 oUseMac     = 1'b0;
                 oResultSrc  = 2'bxx;
-                oActFunct = 2'bxx;
+                oActFunct   = 2'bxx;
             end
 
             default: 

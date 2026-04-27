@@ -19,21 +19,21 @@ module NPUCore(
     //RegisterFile regFile();
     //ExtendUnit extendUnit();
 
-    PipelineRegister #(8) regE({immSrcE, regWriteE, memWriteE, useMacE, resultSrcE, actFunctE}, 
-                               {iImmSrcD, iRegWriteD, iMemWriteD, iUseMacD, iResultSrcD, iActFunctD}, 
+    PipelineRegister #(8) regE({immSrcE, regWriteE, memWriteE, useMacE, resultSrcE, actFunctE},
+                               {iImmSrcD, iRegWriteD, iMemWriteD, iUseMacD, iResultSrcD, iActFunctD},
                                rst, clk);
 
     MAC #(8) macUnit();
     //ActivationFunctUnit activationFunctUnit();
 
-    PipelineRegister #(8) regM({immSrcM, regWriteM, memWriteM, useMacM, resultSrcM, actFunctM}, 
-                               {immSrcE, regWriteE, memWriteE, useMacE, resultSrcE, actFunctE}, 
+    PipelineRegister #(8) regM({immSrcM, regWriteM, memWriteM, useMacM, resultSrcM, actFunctM},
+                               {immSrcE, regWriteE, memWriteE, useMacE, resultSrcE, actFunctE},
                                rst, clk);
 
     //Mux #(32) memorySrcMux();
 
-    PipelineRegister #(8) regW({immSrcW, regWriteW, memWriteW, useMacW, resultSrcW, actFunctW}, 
-                               {immSrcM, regWriteM, memWriteM, useMacM, resultSrcM, actFunctM}, 
+    PipelineRegister #(8) regW({immSrcW, regWriteW, memWriteW, useMacW, resultSrcW, actFunctW},
+                               {immSrcM, regWriteM, memWriteM, useMacM, resultSrcM, actFunctM},
                                rst, clk);
 
     //WriteBackMux writeBackMux();
