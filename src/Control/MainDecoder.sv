@@ -1,11 +1,14 @@
 module MainDecoder(
+    output reg        oIsECALL,
     output reg        oImmSrc,
     output reg        oRegWrite,
     output reg        oMemWrite,
+    output reg        oMemRead,
     output reg        oUseMac,
     output reg [1:0]  oResultSrc,
     output reg [1:0]  oActFunct,
-    input      [31:0] iInstruction
+    input      [31:0] iInstruction,
+    input             iValidInstruction
 );
     import npu_pkg::*;
     
@@ -15,62 +18,92 @@ module MainDecoder(
 
     always @(iInstruction)
     begin
-        case (opcode)
-            NPU_RTYPE:
-            begin
-                oImmSrc     = 1'bx;
-                oRegWrite   = 1'b1;
-                oMemWrite   = 1'b0;
+        oIsECALL    = 1'b0;
+        oRegWrite   = 1'bx;
+        oImmSrc     = 1'bx;
+        oMemWrite   = 1'bx;
+        oMemRead    = 1'bx;
+        oUseMac     = 1'bx;
+        oResultSrc  = 2'bxx;
+        oActFunct = 2'bxx;
 
-                if (funct3 == FUNCT3_MAC)
+        if (iValidInstruction)
+            case (opcode)
+                NPU_RTYPE:
                 begin
-                    oUseMac    = 1'b1;
-                    oResultSrc = 2'b00; // MAC
+                    oIsECALL    = 1'b0;
+                    oImmSrc     = 1'bx;
+                    oRegWrite   = 1'b1;
+                    oMemWrite   = 1'b0;
+                    oMemRead    = 1'b0;
+
+                    if (funct3 == FUNCT3_MAC)
+                    begin
+                        oUseMac    = 1'b1;
+                        oResultSrc = 2'b00; // MAC
+                        oActFunct = 2'bxx;
+                    end
+                    else if (funct3 == FUNCT3_ACT)
+                    begin
+                        oUseMac    = 1'b0;
+                        oResultSrc  = 2'b01;
+                        oActFunct = funct7[1:0];
+                    end
+                    else // não está sendo usado no momento
+                    begin
+                        oUseMac    = 1'b0;
+                        oResultSrc = 2'bxx; //ADD
+                        oActFunct = 2'bxx;
+                    end
+                end
+
+                NPU_LW:
+                begin
+                    oIsECALL    = 1'b0;
+                    oImmSrc     = 1'b0;
+                    oRegWrite   = 1'b1;
+                    oMemWrite   = 1'b0;
+                    oMemRead    = 1'b1;
+                    oUseMac     = 1'b0;
+                    oResultSrc  = 2'b10;
+                    oActFunct   = 2'bxx;
+                end
+
+                NPU_SW:
+                begin
+                    oIsECALL    = 1'b0;
+                    oImmSrc     = 1'b1;
+                    oRegWrite   = 1'b0;
+                    oMemWrite   = 1'b1;
+                    oMemRead    = 1'b0;
+                    oUseMac     = 1'b0;
+                    oResultSrc  = 2'bxx;
+                    oActFunct   = 2'bxx;
+                end
+
+                ECALL:
+                begin
+                    oIsECALL    = 1'b1;
+                    oImmSrc     = 1'bx;
+                    oRegWrite   = 1'bx;
+                    oMemWrite   = 1'bx;
+                    oMemRead    = 1'bx;
+                    oUseMac     = 1'bx;
+                    oResultSrc  = 2'bxx;
+                    oActFunct   = 2'bxx;
+                end
+
+                default: 
+                begin
+                    oIsECALL    = 1'b0;
+                    oImmSrc     = 1'bx;
+                    oRegWrite   = 1'bx;
+                    oMemWrite   = 1'bx;
+                    oMemRead    = 1'bx;
+                    oUseMac     = 1'bx;
+                    oResultSrc  = 2'bxx;
                     oActFunct = 2'bxx;
                 end
-                else if (funct3 == FUNCT3_ACT)
-                begin
-                    oUseMac    = 1'b0;
-                    oResultSrc  = 2'b01;
-                    oActFunct = funct7[1:0];
-                end
-                else // não está sendo usado no momento
-                begin
-                    oUseMac    = 1'b0;
-                    oResultSrc = 2'bxx; //ADD
-                    oActFunct = 2'bxx;
-                end
-            end
-
-            NPU_LW:
-            begin
-                oImmSrc     = 1'b0;
-                oRegWrite   = 1'b1;
-                oMemWrite   = 1'b0;
-                oUseMac     = 1'b0;
-                oResultSrc  = 2'b10;
-                oActFunct   = 2'bxx;
-            end
-
-            NPU_SW:
-            begin
-                oImmSrc     = 1'b1;
-                oRegWrite   = 1'b0;
-                oMemWrite   = 1'b1;
-                oUseMac     = 1'b0;
-                oResultSrc  = 2'bxx;
-                oActFunct   = 2'bxx;
-            end
-
-            default: 
-            begin
-                oRegWrite   = 1'bx;
-                oImmSrc     = 1'bx;
-                oMemWrite   = 1'bx;
-                oUseMac     = 1'bx;
-                oResultSrc  = 2'bxx;
-                oActFunct = 2'bxx;
-            end
-        endcase
+            endcase
     end
 endmodule

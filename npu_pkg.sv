@@ -3,6 +3,8 @@ package npu_pkg;
     parameter NPU_RTYPE    = 7'b0001011;
     parameter NPU_LW       = 7'b0101011;
     parameter NPU_SW       = 7'b1011011;
+    parameter ECALL        = 7'b1110011;
+
 
     parameter FUNCT3_MAC   = 3'b000;
     parameter FUNCT3_ADD   = 3'b001;
