@@ -12,8 +12,6 @@ interface npu_bfm;
     
     // Outputs
     
-
-    // task to generate clock signal
     task generate_clock(input real period = 20, bit clk_pol = 0, real delay = 0);
         clk = ~clk_pol;
         #(delay);
