@@ -1,14 +1,24 @@
 module MainDecoder(
     output reg        oIsECALL,
-    output reg        oImmSrc,
     output reg        oRegWrite,
     output reg        oMemWrite,
     output reg        oMemRead,
     output reg        oUseMac,
     output reg [1:0]  oResultSrc,
     output reg [1:0]  oActFunct,
+    output reg        oIsActivation,
+
+    output reg [4:0]  oRs1,
+    output reg [4:0]  oRs2,
+    output reg [4:0]  oRd,
+    output reg [11:0] oImmediate,
+
+    output reg        oHaltRequisition,
+
     input      [31:0] iInstruction,
-    input             iValidInstruction
+    input             iValidInstruction,
+    input             rst,
+    input             clk
 );
     import npu_pkg::*;
     
@@ -16,75 +26,67 @@ module MainDecoder(
     wire [2:0] funct3  = iInstruction[14:12];
     wire [6:0] funct7  = iInstruction[31:25];
 
+    assign oRs1  = iInstruction[19:15];
+    assign oRs2  = iInstruction[24:20];
+    assign oRd   = iInstruction[11:7];
+
     always @(iInstruction)
     begin
         oIsECALL    = 1'b0;
-        oRegWrite   = 1'bx;
-        oImmSrc     = 1'bx;
-        oMemWrite   = 1'bx;
-        oMemRead    = 1'bx;
-        oUseMac     = 1'bx;
+        oRegWrite   = 1'b0;
+        oMemWrite   = 1'b0;
+        oMemRead    = 1'b0;
+        oUseMac     = 1'b0;
         oResultSrc  = 2'bxx;
-        oActFunct = 2'bxx;
+        oActFunct   = 2'bxx;
+        oIsActivation = 1'b0;
+
+        oImmediate   = 12'bxxxxxxxxxxxx;
 
         if (iValidInstruction)
             case (opcode)
                 NPU_RTYPE:
                 begin
-                    oIsECALL    = 1'b0;
-                    oImmSrc     = 1'bx;
                     oRegWrite   = 1'b1;
-                    oMemWrite   = 1'b0;
-                    oMemRead    = 1'b0;
+                    oResultSrc = 2'b00;
 
                     if (funct3 == FUNCT3_MAC)
                     begin
                         oUseMac    = 1'b1;
-                        oResultSrc = 2'b00; // MAC
-                        oActFunct = 2'bxx;
                     end
                     else if (funct3 == FUNCT3_ACT)
                     begin
-                        oUseMac    = 1'b0;
-                        oResultSrc  = 2'b01;
                         oActFunct = funct7[1:0];
+                        oIsActivation = 1'b1;
                     end
                     else // não está sendo usado no momento
                     begin
-                        oUseMac    = 1'b0;
                         oResultSrc = 2'bxx; //ADD
-                        oActFunct = 2'bxx;
                     end
                 end
 
                 NPU_LW:
                 begin
-                    oIsECALL    = 1'b0;
-                    oImmSrc     = 1'b0;
                     oRegWrite   = 1'b1;
-                    oMemWrite   = 1'b0;
                     oMemRead    = 1'b1;
-                    oUseMac     = 1'b0;
-                    oResultSrc  = 2'b10;
-                    oActFunct   = 2'bxx;
+                    oResultSrc  = 2'b01;
+                    oImmediate   = iInstruction[31:20];
                 end
 
                 NPU_SW:
                 begin
-                    oIsECALL    = 1'b0;
-                    oImmSrc     = 1'b1;
-                    oRegWrite   = 1'b0;
                     oMemWrite   = 1'b1;
-                    oMemRead    = 1'b0;
-                    oUseMac     = 1'b0;
-                    oResultSrc  = 2'bxx;
-                    oActFunct   = 2'bxx;
+                    oImmediate   = {iInstruction[31:25], iInstruction[11:7]};
                 end
 
                 ECALL:
                 begin
                     oIsECALL    = 1'b1;
-                    oImmSrc     = 1'bx;
+                end
+
+                default: 
+                begin
+                    oIsECALL    = 1'b0;
                     oRegWrite   = 1'bx;
                     oMemWrite   = 1'bx;
                     oMemRead    = 1'bx;
@@ -92,18 +94,14 @@ module MainDecoder(
                     oResultSrc  = 2'bxx;
                     oActFunct   = 2'bxx;
                 end
-
-                default: 
-                begin
-                    oIsECALL    = 1'b0;
-                    oImmSrc     = 1'bx;
-                    oRegWrite   = 1'bx;
-                    oMemWrite   = 1'bx;
-                    oMemRead    = 1'bx;
-                    oUseMac     = 1'bx;
-                    oResultSrc  = 2'bxx;
-                    oActFunct = 2'bxx;
-                end
             endcase
+    end
+
+    always @(posedge clk)
+    begin
+        if (rst)
+            oHaltRequisition <= 0;
+        else if (oIsECALL && iValidInstruction)
+            oHaltRequisition <= 1;
     end
 endmodule

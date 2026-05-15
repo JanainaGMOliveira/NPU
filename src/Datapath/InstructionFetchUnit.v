@@ -14,7 +14,7 @@ module InstructionFetchUnit(
     input             clk,
     input             rst
 );
-    reg [31:0] pc;
+    reg  [31:0] pc;
     wire [31:0] pcNext;
 
     assign pcNext = pc + 4;

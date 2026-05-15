@@ -5,6 +5,7 @@ module MultiplierSigned(
 );
     wire [15:0] complementA, complementB;
     wire [31:0] complementP;
+    wire [31:0] product;
 
     TwosComplement #(16) c1(complementA, {iA[7], iA[7], iA[7], iA, 5'b0}, iA[7]);
     TwosComplement #(16) c2(complementB, iB, iB[15]);
