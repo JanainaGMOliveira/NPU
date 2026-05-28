@@ -6,7 +6,7 @@ import uvm_pkg::*;
 `include "../npu_macros.svh"
 `include "../transaction_npu.sv"
 
-class npu_driver extends uvm_driver #(npu_transaction);
+class npu_driver extends uvm_driver #(npu_instruction_transaction);
     `uvm_component_utils(npu_driver)
 
     virtual npu_bfm bfm;
@@ -25,19 +25,19 @@ class npu_driver extends uvm_driver #(npu_transaction);
     endfunction : build_phase
 
     task run_phase(uvm_phase phase);
-        npu_transaction item;
+        npu_instruction_transaction item;
 
         forever
         begin
             seq_item_port.get_next_item(item);
 
-            send_command(item);
+            //program_memory.push_back(encode_instruction(item));
 
             seq_item_port.item_done();
         end
     endtask : run_phase
 
-    task send_command(npu_transaction item);
+    task encode_instruction(npu_instruction_transaction item);
         
     endtask
 endclass : npu_driver
