@@ -1,6 +1,6 @@
 module RegisterFile #(parameter SIZE = 8, N = 32)(
-    output reg [N-1:0] oReadData1,
-    output reg [N-1:0] oReadData2,
+    output [N-1:0] oReadData1,
+    output [N-1:0] oReadData2,
 
     input      [4:0]   iAddr1,
     input      [4:0]   iAddr2,
@@ -19,12 +19,7 @@ module RegisterFile #(parameter SIZE = 8, N = 32)(
 
     always @(posedge clk)
     begin
-        if (rst)
-        begin
-            oReadData1 <= {N{1'b0}};
-            oReadData2 <= {N{1'b0}};
-        end
-        else if (iWriteEnable3)
+        if (iWriteEnable3)
         begin 
             regFile[iAddr3] <= iWriteData3;
         end

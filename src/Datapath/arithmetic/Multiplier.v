@@ -109,3 +109,12 @@ module Multiplier4b(
     or o01(aux8,  (c8 & c9), (c8 & s9 & s10), (s10 & c9 & s8));
     or o02(oP[7], aux15,     (aux10 | (aux13 | aux14)));
 endmodule
+
+module HA(
+    output sum,
+    output c_out,
+    input x,
+    input y
+);
+    assign {c_out, sum} = x + y;
+endmodule 

@@ -38,27 +38,22 @@ module Top(
 
     wire [31:0]                                       mulResultE1,        mulResultE2;
     wire [31:0]                                                           resultE2,           resultM,           resultWB;
-    wire [31:0]                                                           accForwardE2,       accForwardM,       accForwardWB;
     wire [31:0]                    readData1D,        readData1E1;
     wire [31:0]                    readData2D,        readData2E1;
     wire [4:0]                     rs1D,              rs1E1,              rs1E2;
     wire [4:0]                     rs2D,              rs2E1;
     wire [4:0]                     rdD,               rdE1,               rdE2,               rdM,                rdWB;
     wire [31:0]                                                                                                   writeDataReg;
-    wire [31:0]                                                           memAddrE2,          memAddrM;
     wire [31:0]                                                           storeDataE2,        storeDataM;
     wire [31:0]                                                                                                   memoryDataWB;
-    wire [31:0]                    immD,              immE1,              immE2;
+    wire [11:0]                    immD,              immE1,              immE2;
     wire [31:0] operandAForwardedE1, operandAForwardedE2;
     wire [31:0] operandBForwardedE1;
     wire [31:0] dataMem;
     wire [31:0] memoryDataM;
 
-    wire pipelineEmpty;
-
-    reg  haltRequisition;
-    wire stallF,          stallD,         stallE1,          stallE2, stallM, stallWB;
-    wire stallF_pipeline, stallD_pipeline;
+    wire haltRequisition;
+    wire stallF,          stallD,         stallE1,          stallE2, stallM;
     wire stallF_HDU,      stallD_HDU;
     wire                  flushD,         flushE1;
 
@@ -102,7 +97,6 @@ module Top(
                                   .clk   (clk));
 
     MainDecoder control(.oIsECALL         (isECALLD),
-                        .oImmSrc          (immSrcD),
                         .oRegWrite        (regWriteD),
                         .oMemWrite        (memWriteD),
                         .oMemRead         (memReadD),
@@ -116,7 +110,9 @@ module Top(
                         .oImmediate       (immD),
                         .oHaltRequisition (haltRequisition),
                         .iInstruction     (instructionD),
-                        .iValidInstruction(validInstructionD));
+                        .iValidInstruction(validInstructionD),
+                        .rst              (rst),
+                        .clk              (clk));
 
     RegisterFile #(8, 32) regFile(.oReadData1   (readData1D),
                                   .oReadData2   (readData2D),
@@ -128,7 +124,7 @@ module Top(
                                   .clk          (clk),
                                   .rst          (rst));
 
-    PipelineRegister #(79) regD_E1(.oQ    ({regWriteE1, memWriteE1, memReadE1, useMacE1, resultSrcE1, actFunctE1, isActivationE1,
+    PipelineRegister #(101) regD_E1(.oQ    ({regWriteE1, memWriteE1, memReadE1, useMacE1, resultSrcE1, actFunctE1, isActivationE1,
                                             validInstructionE1,
                                             rs1E1, rs2E1, rdE1,
                                             readData1E1, readData2E1,
@@ -146,21 +142,21 @@ module Top(
     ExecuteStage1 ex1(.oP     (mulResultE1),
                       .iValid (validInstructionE1),
                       .iUseMac(useMacE1),
-                      .iA     (operandAForwarded),
-                      .iB     (operandBForwarded));
+                      .iA     (operandAForwardedE1),
+                      .iB     (operandBForwardedE1));
  
-    PipelineRegister #(47) regE1_E2(.oQ    ({regWriteE2, memWriteE2, memReadE2, useMacE2, resultSrcE2, actFunctE2, isActivationE2,
+    PipelineRegister #(128) regE1_E2(.oQ    ({regWriteE2, memWriteE2, memReadE2, useMacE2, resultSrcE2, actFunctE2, isActivationE2,
                                              validInstructionE2,
                                              rs1E2, rdE2,
                                              immE2,
-                                             mulResultE2, memAddrE2, storeDataE2,
+                                             mulResultE2, storeDataE2,
                                              operandAForwardedE2}),
                                     .iD    ({regWriteE1, memWriteE1, memReadE1, useMacE1, resultSrcE1, actFunctE1, isActivationE1,
                                              validInstructionE1,
                                              rs1E1, rdE1,
                                              immE1,
-                                             mulResultE1, memAddrE1, readData2E1,
-                                            operandAForwardedE1}),
+                                             mulResultE1, readData2E1,
+                                             operandAForwardedE1}),
                                     .iStall(stallE2),
                                     .iFlush(1'b0),
                                     .rst   (rst),
@@ -180,11 +176,11 @@ module Top(
                       .iIsActivationFunction(isActivationE2),
                       .iMulResult           (mulResultE2),
                       .iOperand             (operandAForwardedE2),
-                      .iImm                 (immE2),
+                      .iImm                 ({20'b0, immE2}),
                       .clk                  (clk),
                       .rst                  (rst));
 
-    PipelineRegister #(107) regE2_M(.oQ   ({regWriteM,  memWriteM,  memReadM,  useMacM,  resultSrcM,
+    PipelineRegister #(76) regE2_M(.oQ   ({regWriteM,  memWriteM,  memReadM,  useMacM,  resultSrcM,
                                             validInstructionM,
                                             rdM,
                                             resultM,
@@ -213,7 +209,7 @@ module Top(
                          .iMemoryRData  (iMemoryRData),
                          .iMemoryReady  (iMemoryReady));
 
-    PipelineRegister #(23) regM_WB(.oQ    ({regWriteWB, resultSrcWB,
+    PipelineRegister #(73) regM_WB(.oQ    ({regWriteWB, resultSrcWB,
                                             validInstructionWB,
                                             rdWB,
                                             resultWB,
@@ -223,7 +219,7 @@ module Top(
                                             rdM,
                                             resultM,
                                             memoryDataM}),
-                                   .iStall(stallWB),
+                                   .iStall(1'b0),
                                    .iFlush(1'b0),
                                    .rst   (rst),
                                    .clk   (clk));

@@ -18,14 +18,17 @@ module ExecuteStage2(
     reg [31:0] acc;
 
     wire [31:0]  accNext;
-    reg  [31:0]  activationInput;
-    reg  [7:0]   activationResult;
+    wire  [31:0]  activationInput;
+    wire  [7:0]   activationResult;
+
+    wire [31:0] opA, opB, soma;
 
     // definição de entradas do somador
     assign opA = !iUseMac ? iImm : acc;
     assign opB = !iUseMac ? iOperand : iMulResult;
 
     Adder #(32) memAddrSum(.oSum(soma),
+                           .iCarryIn(1'b0),
                            .iA  (opA),
                            .iB  (opB));
 
@@ -35,7 +38,7 @@ module ExecuteStage2(
         if (rst)
             oResult <= 32'b0;
         else if (iIsActivationFunction)
-            oResult = {24'b0, activationResult}; // erradíssimo, mas é só pra teste mesmo
+            oResult = {{9{activationResult[7]}}, activationResult, 15'b0};
         else
             oResult = soma;
     end
