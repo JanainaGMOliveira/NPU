@@ -4,12 +4,12 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 `include "../npu_macros.svh"
-`include "../transaction_npu.sv"
+`include "../transaction.sv"
 
-class npu_coverage extends uvm_subscriber #(npu_transaction);
+class npu_coverage extends uvm_subscriber #(npu_instruction_transaction);
     `uvm_component_utils(npu_coverage)
 
-    npu_transaction item;
+    npu_instruction_transaction item;
 
     covergroup npu_cg;
     endgroup
@@ -19,7 +19,7 @@ class npu_coverage extends uvm_subscriber #(npu_transaction);
         npu_cg = new();
     endfunction
     
-    function void write(npu_transaction t);
+    function void write(npu_instruction_transaction t);
         item = t;
         npu_cg.sample();
     endfunction

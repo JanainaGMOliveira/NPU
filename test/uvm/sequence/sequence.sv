@@ -2,19 +2,17 @@
 `define SEQUENCES_SV
 
 `include "../npu_macros.svh"
-`include "../transaction_npu.sv"
+`include "../transaction.sv"
 
-class npu_random_seq extends uvm_sequence #(npu_transaction);
-    `uvm_object_utils(npu_random_seq)
+class npu_basic_seq extends uvm_sequence #(npu_instruction_transaction);
+    `uvm_object_utils(npu_basic_seq)
 
-    int unsigned max_transactions = MAX_TRANSACTIONS;
-
-    function new(string name = "npu_random_seq");
+    function new(string name = "npu_basic_seq");
         super.new(name);
     endfunction
 
     task body();
-        npu_transaction item;
+        npu_instruction_transaction item;
         integer i;
 
         if (starting_phase != null)
@@ -22,23 +20,65 @@ class npu_random_seq extends uvm_sequence #(npu_transaction);
             starting_phase.raise_objection(this);
         end
 
-        `uvm_info("NPU SEQUENCE", $sformatf("Starting %0d random NPU commands", max_transactions), UVM_LOW)
+        // LOAD r1, [0]
+        item = npu_instruction_transaction::type_id::create("item");
+        item.opcode = NPU_LW;
+        item.rd  = 1;
+        item.rs1 = 0;
+        item.imm = 0;
 
-        repeat (max_transactions)
-        begin
-            item = npu_transaction::type_id::create("item");
+        start_item(item);
+        finish_item(item);
 
-            start_item(item);
+        // LOAD r2, [4]
+        item = npu_instruction_transaction::type_id::create("item");
+        item.opcode = NPU_LW;
+        item.rd  = 2;
+        item.rs1 = 0;
+        item.imm = 4;
 
-            assert(item.randomize());
+        start_item(item);
+        finish_item(item);
 
-            for (i = 0; i < NPU_MAX_NUMBER; i = i + 1)
-            begin
-                `uvm_info("NPU SEQUENCE", $sformatf("Sending NPU values: x=0x%h, w=0x%h", item.ix[i], item.iw[i]), UVM_MEDIUM);
-            end
+        // MAC r3, r1, r2
+        item = npu_instruction_transaction::type_id::create("item");
+        item.opcode = NPU_RTYPE;
+        item.funct3 = FUNCT3_MAC;
+        item.rd  = 3;
+        item.rs1 = 1;
+        item.rs2 = 2;
 
-            finish_item(item);
-        end
+        start_item(item);
+        finish_item(item);
+
+        // RELU r3
+        item = npu_instruction_transaction::type_id::create("item");
+        item.opcode = NPU_RTYPE;
+        item.funct3 = FUNCT3_ACT;
+        item.funct7 = FUNCT7_RELU;
+        item.rd  = 3;
+        item.rs1 = 3;
+
+        start_item(item);
+        finish_item(item);
+
+        // STORE r3, [24]
+        item = npu_instruction_transaction::type_id::create("item");
+        item.opcode = NPU_SW;
+        item.rs1 = 0;
+        item.rs2 = 3;
+
+        item.imm = 24;
+
+        start_item(item);
+        finish_item(item);
+
+        // ECALL
+        item = npu_instruction_transaction::type_id::create("item");
+        item.opcode = ECALL;
+
+        start_item(item);
+        finish_item(item);
 
         if (starting_phase != null)
         begin
@@ -46,9 +86,9 @@ class npu_random_seq extends uvm_sequence #(npu_transaction);
         end
     endtask
 
-endclass : npu_random_seq
+endclass : npu_basic_seq
 
-// class npu_corner_seq extends uvm_sequence #(npu_transaction);
+// class npu_corner_seq extends uvm_sequence #(npu_instruction_transaction);
 //     `uvm_object_utils(npu_corner_seq)
 
 //     int unsigned max_transactions = MAX_TRANSACTIONS;
@@ -71,7 +111,7 @@ endclass : npu_random_seq
 //     endtask
 
 //     task send(logic [127:0] w, logic [127:0] k, logic op);
-//         npu_transaction item = npu_transaction::type_id::create("item");
+//         npu_instruction_transaction item = npu_instruction_transaction::type_id::create("item");
 
 //         start_item(item);
 

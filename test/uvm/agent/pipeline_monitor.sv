@@ -4,7 +4,7 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 `include "../npu_macros.svh"
-`include "../transaction_npu.sv"
+`include "../transaction.sv"
 
 class pipeline_monitor extends uvm_monitor;
     `uvm_component_utils(pipeline_monitor)
@@ -25,7 +25,7 @@ class pipeline_monitor extends uvm_monitor;
     task run_phase(uvm_phase phase);
         forever
         begin
-            @(posedge dbg_vif.clk);
+            @(posedge dbg_if.clk);
 
                 `uvm_info(
                     "PIPELINE",
@@ -34,28 +34,21 @@ class pipeline_monitor extends uvm_monitor;
                         "\nVALIDS: F=%0d D=%0d E1=%0d E2=%0d MEM=%0d WB=%0d" +
                         "\nSTALLS: stallF=%0d stallD=%0d" +
                         "\nFLUSH: flushD=%0d flushE1=%0d" +
-                        "\nFORWARD: A=%b B=%b" +
-                        "\nRESULT E2=%0d" +
-                        "\nWB=%0d",
-                        dbg_vif.validInstructionF,
-                        dbg_vif.validInstructionD,
-                        dbg_vif.validInstructionE1,
-                        dbg_vif.validInstructionE2,
-                        dbg_vif.validInstructionMEM,
-                        dbg_vif.validInstructionWB,
+                        "\nRESULT E2=%0d",
+                        dbg_if.validInstructionF,
+                        dbg_if.validInstructionD,
+                        dbg_if.validInstructionE1,
+                        dbg_if.validInstructionE2,
+                        dbg_if.validInstructionM,
+                        dbg_if.validInstructionWB,
 
-                        dbg_vif.stallF,
-                        dbg_vif.stallD,
+                        dbg_if.stallF,
+                        dbg_if.stallD,
 
-                        dbg_vif.flushD,
-                        dbg_vif.flushE1,
+                        dbg_if.flushD,
+                        dbg_if.flushE1,
 
-                        dbg_vif.forwardA,
-                        dbg_vif.forwardB,
-
-                        dbg_vif.resultE2,
-
-                        dbg_vif.writeDataWB
+                        dbg_if.resultE2
                     ),
 
                     UVM_LOW

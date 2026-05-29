@@ -1,4 +1,4 @@
-module Top(
+module NPU(
     output            oBusy,
     output            oDone,
     output            oInterrupt,

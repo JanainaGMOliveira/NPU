@@ -3,9 +3,9 @@
 
 import uvm_pkg::*;
 `include "uvm_macros.svh"
-`include "../transaction_npu.sv"
+`include "../transaction.sv"
 
-class npu_sequencer extends uvm_sequencer #(npu_transaction);
+class npu_sequencer extends uvm_sequencer #(npu_instruction_transaction);
     `uvm_component_utils(npu_sequencer)
 
     function new (string name, uvm_component parent);

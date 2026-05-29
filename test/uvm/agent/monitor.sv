@@ -4,13 +4,13 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 `include "../npu_macros.svh"
-`include "../transaction_npu.sv"
+`include "../transaction.sv"
 
 class npu_monitor extends uvm_monitor;
     `uvm_component_utils(npu_monitor)
     
     virtual npu_bfm bfm;
-    uvm_analysis_port #(npu_transaction) ap;
+    uvm_analysis_port #(npu_instruction_transaction) ap;
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
@@ -29,7 +29,7 @@ class npu_monitor extends uvm_monitor;
     endtask
 
     task monitor_npu();
-        npu_transaction transaction;
+        npu_instruction_transaction transaction;
         integer i;
 
         forever

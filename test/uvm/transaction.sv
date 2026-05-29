@@ -8,18 +8,14 @@ import uvm_pkg::*;
 
 class npu_instruction_transaction extends uvm_sequence_item;
     rand bit [6:0] opcode;
-
+    rand bit [6:0] funct7;
+    rand bit [2:0] funct3;
+    
     rand bit [4:0] rd;
     rand bit [4:0] rs1;
     rand bit [4:0] rs2;
 
     rand bit [11:0] imm;
-
-    `uvm_object_utils(npu_instr_transaction)
-
-    function new(string name = "npu_instr_transaction");
-        super.new(name);
-    endfunction
     
     `uvm_object_utils_begin(npu_instruction_transaction)
         `uvm_field_int(opcode, UVM_ALL_ON)

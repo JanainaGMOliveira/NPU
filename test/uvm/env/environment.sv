@@ -5,6 +5,7 @@ import uvm_pkg::*;
 `include "uvm_macros.svh"
 
 `include "../agent/agent.sv"
+`include "../agent/pipeline_monitor.sv"
 `include "../scoreboard/scoreboard.sv" 
 `include "../coverage/coverage.sv"
 

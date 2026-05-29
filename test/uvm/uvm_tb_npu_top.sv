@@ -12,7 +12,7 @@ module uvm_tb_top;
    
     npu_bfm  bfm();
 
-    npu DUT(
+    NPU DUT(
         .oBusy                 (bfm.oBusy),
         .oDone                 (bfm.oDone),
         .oInterrupt            (bfm.oInterrupt),
@@ -44,7 +44,7 @@ module uvm_tb_top;
     assign dbg_if.validInstructionD   = DUT.validInstructionD;
     assign dbg_if.validInstructionE1  = DUT.validInstructionE1;
     assign dbg_if.validInstructionE2  = DUT.validInstructionE2;
-    assign dbg_if.validInstructionMEM = DUT.validInstructionMEM;
+    assign dbg_if.validInstructionM   = DUT.validInstructionM;
     assign dbg_if.validInstructionWB  = DUT.validInstructionWB;
 
     assign dbg_if.regWriteD     = DUT.regWriteD;
